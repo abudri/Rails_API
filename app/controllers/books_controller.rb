@@ -1,4 +1,6 @@
 class BooksController < ApplicationController
+  rescue_from ActiveRecord::RecordNotDestroyed, with: :not_destroyed # not_destroyed is a private method
+
   def index
     render json: Book.all
   end
@@ -18,8 +20,6 @@ class BooksController < ApplicationController
     Book.find(params[:id]).destroy!  # ActiveRecord Books model has a method given called `.find` which takes an id. From route book DELETE /books/:id(.:format), books#destroy
                           # destroy!, the ! will return true of successful, and will give an exception if not, which we handle later
     head :no_content # `head` doesn't give JSON, but returns a status code in head of the response but no body, :no_content is a 204 status code
-    rescue ActiveRecord::RecordNotDestroyed
-      render json: {}, status: :unprocessable_entity # now when `.destroy!` a few lines up fails, rather than just giving an error, we capture error and raise a response back to user with status code telling them request they formed was correct, but we were not not able perform the operation
   end
 
   private
@@ -27,5 +27,9 @@ class BooksController < ApplicationController
   def book_params
     params.require(:book).permit(:author, :title)  # params method is made available by ApplicationController
     # above allows :title and :author parameters to be POSTed, but no others
+  end
+
+  def not_destroyed
+    render json: {}, status: :unprocessable_entity # now when `.destroy!` a few lines up fails, rather than just giving an error, we capture error and raise a response back to user with status code telling them request they formed was correct, but we were not not able perform the operation
   end
 end
