@@ -1,6 +1,4 @@
 class BooksController < ApplicationController
-  rescue_from ActiveRecord::RecordNotDestroyed, with: :not_destroyed # not_destroyed is a private method
-
   def index
     render json: Book.all
   end
@@ -27,9 +25,5 @@ class BooksController < ApplicationController
   def book_params
     params.require(:book).permit(:author, :title)  # params method is made available by ApplicationController
     # above allows :title and :author parameters to be POSTed, but no others
-  end
-
-  def not_destroyed
-    render json: {}, status: :unprocessable_entity # now when `.destroy!` a few lines up fails, rather than just giving an error, we capture error and raise a response back to user with status code telling them request they formed was correct, but we were not not able perform the operation
   end
 end
