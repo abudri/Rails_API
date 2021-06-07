@@ -1,13 +1,35 @@
 require 'rails_helper'
 
 describe 'Books API', type: :request do  # high level `describe` block, option specify the :type, a `:request` spec. describe contains all tests about Book API and then we have the `it` blocks for specific tests we want to write
-  it 'returns all books' do  # this is the actual test, should return all books
-    FactoryBot.create(:book, title: '1984', author: 'George Orwell')  # create two books in our test database, this line and below
-    FactoryBot.create(:book, title: 'The Good Earth', author: 'Pearl Buck')
+  describe 'GET /books' do   # /api/v1/books
+    it 'returns all books' do  # this is the actual test, should return all books
+      FactoryBot.create(:book, title: '1984', author: 'George Orwell')  # create two books in our test database, this line and below
+      FactoryBot.create(:book, title: 'The Good Earth', author: 'Pearl Buck')
 
-    get '/api/v1/books'   # GET request to the index controller, should return all books in system
+      get '/api/v1/books'   # GET request to the index controller, should return all books in system
 
-    expect(response).to have_http_status(:success)  # expected response, checking that it is a 200, ie :success, but this doesn't check that any books are actually being returned, so we need to check the actual response body next, below
-    expect(JSON.parse(response.body).size).to eq(2)  # check the number of books in the response body, which at this time should be 2 books. we use JSON.parse to convert response from JSON to something usable by Rspec methods
+      expect(response).to have_http_status(:success)  # expected response, checking that it is a 200, ie :success, but this doesn't check that any books are actually being returned, so we need to check the actual response body next, below
+      expect(JSON.parse(response.body).size).to eq(2)  # check the number of books in the response body, which at this time should be 2 books. we use JSON.parse to convert response from JSON to something usable by Rspec methods
+    end
+  end
+
+  describe 'POST /books' do # /api/v1/books
+    it 'creates a new book' do
+      expect {
+        post '/api/v1/books', params: { book: { title: 'Nannette & the Baggette', author: 'Mo Willems' } }
+      }.to change { Book.count }.from(0).to(1)  # this line checks for actual book creation, not just checking the response like the line above. Book.count checks number of rows in the test DB
+
+      expect(response).to have_http_status(:created)  # we return status :created in the #create controller action
+    end
+  end
+
+  describe 'DELETE /api/v1/books' do  # /api/v1/books 
+    it 'deletes a book' do
+      book = FactoryBot.create(:book, title: 'The Good Earth', author: 'Pearl Buck')  # create a book in test database for this test
+
+      delete "/api/v1/books/#{book.id}"  # interpolation here with the #{ }, so we don't hardcode the id of 1, in `/api/v1/books/1`, for the book created two lines above
+
+      expect(response).to have_http_status(:no_content)
+    end
   end
 end
