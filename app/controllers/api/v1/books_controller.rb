@@ -2,7 +2,9 @@ module Api
   module V1
     class BooksController < ApplicationController
       def index
-        render json: Book.all
+        books = Book.all
+
+        render json: BooksRepresenter.new(books).as_json # as_json, convention for returning Ruby hash that is ready to be converted to JSON by the controller, takes hash and return to API clicent
       end
 
       def create
