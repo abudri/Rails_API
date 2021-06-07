@@ -2,10 +2,11 @@ require 'rails_helper'
 
 describe 'Books API', type: :request do  # high level `describe` block, option specify the :type, a `:request` spec. describe contains all tests about Book API and then we have the `it` blocks for specific tests we want to write
   describe 'GET /books' do   # /api/v1/books
-    it 'returns all books' do  # this is the actual test, should return all books
+    before do  # this `before` block code will get run before every test inside the enclosing `describe block`
       FactoryBot.create(:book, title: '1984', author: 'George Orwell')  # create two books in our test database, this line and below
       FactoryBot.create(:book, title: 'The Good Earth', author: 'Pearl Buck')
-
+    end
+    it 'returns all books' do  # this is the actual test, should return all books
       get '/api/v1/books'   # GET request to the index controller, should return all books in system
 
       expect(response).to have_http_status(:success)  # expected response, checking that it is a 200, ie :success, but this doesn't check that any books are actually being returned, so we need to check the actual response body next, below
