@@ -17,10 +17,14 @@ describe 'Books API', type: :request do  # high level `describe` block, option s
   describe 'POST /books' do # /api/v1/books
     it 'creates a new book' do
       expect {
-        post '/api/v1/books', params: { book: { title: 'Nannette & the Baggette', author: 'Mo Willems' } }
+        post '/api/v1/books', params: {
+          book: { title: 'Nannette & the Baggette' },
+          author: { first_name: 'Mo', last_name: 'Willems', age: '44' }
+        }
       }.to change { Book.count }.from(0).to(1)  # this line checks for actual book creation, not just checking the response like the line above. Book.count checks number of rows in the test DB
 
       expect(response).to have_http_status(:created)  # we return status :created in the #create controller action
+      expect( Author.count).to eq(1)  # author created with book in this recent change
     end
   end
 
