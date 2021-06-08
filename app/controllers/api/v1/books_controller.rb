@@ -16,7 +16,7 @@ module Api
                                       # so we can merge the author into book_params, merges not the entire author object, but the author.id, and ActiveRecord is smart enough to work with either an id or an object
                                       # so we are creating an author, based on the new params author_params, and then merging that author into the book_params so that when we create the book it should have the author
         if book.save
-          render json: book, status: :created # this renders JSON of object back, you could also just say success here too with no body with JSON
+          render json: BookRepresenter.new(book).as_json, status: :created # this renders JSON of object back, you could also just say success here too with no body with JSON
                                     # default success is 200, but we have a more specific one, a 201 response for record successfully created, so we use ``:created` above
         else
           render json: book.errors, status: :unprocessable_entity # :unprocessable_entity is for a 422, server understands request, unable to process instructions (parameters were wrong)
